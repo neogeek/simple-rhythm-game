@@ -27,9 +27,9 @@ public class RenderSong : MonoBehaviour
 
     private Song _song;
 
-    private Vector3 _noteScale = new(0.5f, 0.25f, 0.5f);
+    private readonly Vector3 _noteScale = new(0.5f, 0.25f, 0.5f);
 
-    private Vector3 _beatBarScale = new(5, 0.03f, 0.03f);
+    private readonly Vector3 _beatBarScale = new(5, 0.03f, 0.03f);
 
     private async void Start()
     {
