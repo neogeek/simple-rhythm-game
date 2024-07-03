@@ -37,6 +37,9 @@ public class RenderSong : MonoBehaviour
 
         _audioSource.clip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Songs/Demo 1/song.ogg");
 
+        _song.BPM.TryAdd(Song.ConvertSecondToTicks(_audioSource.clip.length, _song.Resolution, _song.sortedBPM),
+            _song.BPM.Last().Value);
+
         _audioSource.Play();
     }
 
