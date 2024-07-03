@@ -52,34 +52,29 @@ public class RenderSong : MonoBehaviour
 
         var tickOffset = Song.ConvertSecondToTicks(_audioSource.time, _song.Resolution, _song.sortedBPM);
 
-        var noteMatrix = new List<List<Matrix4x4>>();
-
         for (var x = 0; x < 5; x += 1)
         {
-            noteMatrix.Add(new List<Matrix4x4>());
-        }
+            var noteMatrix = new List<Matrix4x4>();
 
-        foreach (var note in _song.Difficulties[Difficulty.Expert].Where(note => note.HandPosition < 5))
-        {
-            var position = Song.ConvertTickToPosition(note.Position - tickOffset, _song.Resolution) * _scale;
-
-            if (position > _distance)
+            foreach (var note in _song.Difficulties[Difficulty.Expert].Where(note => note.HandPosition == x))
             {
-                break;
+                var position = Song.ConvertTickToPosition(note.Position - tickOffset, _song.Resolution) * _scale;
+
+                if (position > _distance)
+                {
+                    break;
+                }
+
+                if (position < 0)
+                {
+                    continue;
+                }
+
+                noteMatrix.Add(Matrix4x4.TRS(new Vector3(note.HandPosition, 0, position),
+                    Quaternion.identity, _noteScale));
             }
 
-            if (position < 0)
-            {
-                continue;
-            }
-
-            noteMatrix[note.HandPosition].Add(Matrix4x4.TRS(new Vector3(note.HandPosition, 0, position),
-                Quaternion.identity, _noteScale));
-        }
-
-        for (var x = 0; x < 5; x += 1)
-        {
-            Graphics.DrawMeshInstanced(_mesh, 0, _materials[x], noteMatrix[x]);
+            Graphics.DrawMeshInstanced(_mesh, 0, _materials[x], noteMatrix);
         }
 
         var beatBarMatrix = new List<Matrix4x4>();
