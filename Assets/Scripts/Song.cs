@@ -207,7 +207,7 @@ public class Song
         return adjacentKeyPairs;
     }
 
-    public int RoundUpToTheNearestMultiplier(int value, int multiplier)
+    public static int RoundUpToTheNearestMultiplier(int value, int multiplier)
     {
         return Mathf.CeilToInt((float)value / multiplier) * multiplier;
     }
