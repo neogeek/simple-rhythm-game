@@ -128,12 +128,12 @@ public class Song
         return TimeSignatures.Last(item => item.Key <= tick).Value;
     }
 
-    public float ConvertTickToPosition(float tick, int resolution)
+    public static float ConvertTickToPosition(float tick, int resolution)
     {
         return tick / resolution;
     }
 
-    public int ConvertSecondToTicks(float seconds, int resolution, Dictionary<int, int> bpmChanges)
+    public static int ConvertSecondToTicks(float seconds, int resolution, Dictionary<int, int> bpmChanges)
     {
         var totalTicks = 0;
         var remainingSeconds = seconds;
@@ -162,7 +162,7 @@ public class Song
         return totalTicks;
     }
 
-    public List<BeatBar> CalculateBeatBars(Dictionary<int, int> bpm, int resolution = 192, int ts = 4,
+    public static List<BeatBar> CalculateBeatBars(Dictionary<int, int> bpm, int resolution = 192, int ts = 4,
         bool includeHalfNotes = true)
     {
         var newBpm = new List<BeatBar>();
@@ -191,7 +191,7 @@ public class Song
         return newBpm;
     }
 
-    public List<int[]> GenerateAdjacentKeyPairs<T>(Dictionary<int, T> dictionary)
+    public static List<int[]> GenerateAdjacentKeyPairs<T>(Dictionary<int, T> dictionary)
     {
         var keys = dictionary.Keys.ToList();
 
