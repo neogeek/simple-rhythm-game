@@ -50,7 +50,7 @@ public class RenderSong : MonoBehaviour
             return;
         }
 
-        var tick = Song.ConvertSecondToTicks(_audioSource.time, _song.Resolution, _song.sortedBPM);
+        var tickOffset = Song.ConvertSecondToTicks(_audioSource.time, _song.Resolution, _song.sortedBPM);
 
         var noteMatrix = new List<List<Matrix4x4>>();
 
@@ -61,7 +61,7 @@ public class RenderSong : MonoBehaviour
 
         foreach (var note in _song.Difficulties[Difficulty.Expert].Where(note => note.HandPosition < 5))
         {
-            var position = Song.ConvertTickToPosition(note.Position - tick, _song.Resolution) * _scale;
+            var position = Song.ConvertTickToPosition(note.Position - tickOffset, _song.Resolution) * _scale;
 
             if (position > _distance)
             {
@@ -83,8 +83,6 @@ public class RenderSong : MonoBehaviour
         }
 
         var beatBarMatrix = new List<Matrix4x4>();
-
-        var tickOffset = Song.ConvertSecondToTicks(_audioSource.time, _song.Resolution, _song.sortedBPM);
 
         foreach (var beatBar in _song.beatBars)
         {
