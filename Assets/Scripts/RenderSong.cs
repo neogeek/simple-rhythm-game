@@ -31,6 +31,8 @@ public class RenderSong : MonoBehaviour
 
     private readonly Vector3 _beatBarScale = new(5, 0.03f, 0.03f);
 
+    private Dictionary<int, List<Note>> _notesGroupedByHandPosition;
+
     private async void Start()
     {
         _song = Song.FromJSON(await File.ReadAllTextAsync("Assets/Songs/Demo 1/notes.json"));
@@ -40,6 +42,10 @@ public class RenderSong : MonoBehaviour
         var lastTick = Song.ConvertSecondToTicks(_audioSource.clip.length, _song.Resolution, _song.sortedBPM);
 
         _song.BPM.TryAdd(Song.RoundUpToTheNearestMultiplier(lastTick, _song.Resolution), _song.BPM.Last().Value);
+
+        _notesGroupedByHandPosition = _song.Difficulties[Difficulty.Expert]
+            .GroupBy(note => note.HandPosition)
+            .ToDictionary(group => group.Key, group => group.ToList());
 
         _audioSource.Play();
     }
@@ -55,9 +61,14 @@ public class RenderSong : MonoBehaviour
 
         for (var x = 0; x < 5; x += 1)
         {
+            if (!_notesGroupedByHandPosition.ContainsKey(x))
+            {
+                continue;
+            }
+
             var noteMatrix = new List<Matrix4x4>();
 
-            foreach (var note in _song.Difficulties[Difficulty.Expert].Where(note => note.HandPosition == x))
+            foreach (var note in _notesGroupedByHandPosition[x])
             {
                 var position = Song.ConvertTickToPosition(note.Position - tickOffset, _song.Resolution) * _scale;
 
@@ -82,8 +93,7 @@ public class RenderSong : MonoBehaviour
 
         foreach (var beatBar in _song.beatBars)
         {
-            var position = Song.ConvertTickToPosition(beatBar.Position - tickOffset, _song.Resolution) *
-                           _scale;
+            var position = Song.ConvertTickToPosition(beatBar.Position - tickOffset, _song.Resolution) * _scale;
 
             if (position > _distance)
             {
