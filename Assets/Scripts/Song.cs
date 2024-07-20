@@ -103,31 +103,6 @@ public class Song
         return JsonConvert.DeserializeObject<Song>(input);
     }
 
-    public int GetCurrentBPM(Note note)
-    {
-        return GetCurrentBPM(note.Position);
-    }
-
-    public int GetCurrentBPM(int tick)
-    {
-        return BPM.Last(item => item.Key <= tick).Value / 1000;
-    }
-
-    public int[] GetCurrentTimeSignature()
-    {
-        return TimeSignatures.First().Value;
-    }
-
-    public int[] GetCurrentTimeSignature(Note note)
-    {
-        return GetCurrentTimeSignature(note.Position);
-    }
-
-    public int[] GetCurrentTimeSignature(int tick)
-    {
-        return TimeSignatures.Last(item => item.Key <= tick).Value;
-    }
-
     public static float ConvertTickToPosition(float tick, int resolution)
     {
         return tick / resolution;
