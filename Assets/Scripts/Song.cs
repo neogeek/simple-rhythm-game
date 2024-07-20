@@ -110,10 +110,14 @@ public class Song
 
     public static int ConvertSecondToTicks(float seconds, int resolution, Dictionary<int, int> bpmChanges)
     {
+        var bpmChangesEnumerator = bpmChanges.GetEnumerator();
+
+        bpmChangesEnumerator.MoveNext();
+
         var totalTicks = 0;
         var remainingSeconds = seconds;
         var previousTick = 0;
-        var previousBPM = bpmChanges.First().Value / 1000;
+        var previousBPM = bpmChangesEnumerator.Current.Value / 1000;
 
         foreach (var (currentTick, value) in bpmChanges)
         {
