@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -188,7 +189,7 @@ public class Song
 
     public static int RoundUpToTheNearestMultiplier(int value, int multiplier)
     {
-        return Mathf.CeilToInt((float)value / multiplier) * multiplier;
+        return (int)Math.Ceiling((float)value / multiplier) * multiplier;
     }
 
 }
