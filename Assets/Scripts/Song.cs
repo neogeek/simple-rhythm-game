@@ -94,7 +94,7 @@ public class Song
                 _beatBars = CalculateBeatBars(BPM);
             }
 
-            return CalculateBeatBars(BPM);
+            return _beatBars;
         }
     }
 
