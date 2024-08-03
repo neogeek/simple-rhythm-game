@@ -192,13 +192,22 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.textmeshpro": {
-      "version": "3.0.6",
-      "depth": 0,
+      "version": "3.0.9",
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.ugui": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.unity.textmeshpro-essentials": {
+      "version": "https://github.com/neogeek/textmeshpro-essentials.git#v1.0.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.textmeshpro": "3.0.9"
+      },
+      "hash": "6f5698d8c3b3b7a77bc399f0112a5555eba62447"
     },
     "com.unity.timeline": {
       "version": "1.7.6",
