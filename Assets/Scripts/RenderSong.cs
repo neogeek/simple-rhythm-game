@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
+using Cysharp.Threading.Tasks;
+using RhythmGameUtilities;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class RenderSong : MonoBehaviour
 {
@@ -29,48 +31,88 @@ public class RenderSong : MonoBehaviour
 
     private readonly Vector3 _noteScale = new(0.5f, 0.25f, 0.5f);
 
+    private readonly Vector3 _noteScaleFlat = new(0.5f, 0.05f, 0.5f);
+
     private readonly Vector3 _beatBarScale = new(5, 0.03f, 0.03f);
 
     private Dictionary<int, List<Note>> _notesGroupedByHandPosition;
 
     private async void Start()
     {
-        _song = Song.FromJSON(await File.ReadAllTextAsync("Assets/Songs/Demo 1/notes.json"));
+        _song = Song.FromChartFile(
+            await LoadTextFileFromPath(
+                $"file://{Path.Join(Application.streamingAssetsPath, "Songs/Demo 1/notes.chart")}"));
 
-        _audioSource.clip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Songs/Demo 1/song.ogg");
+        _audioSource.clip = await LoadAudioFileFromPath(
+            $"file://{Path.Join(Application.streamingAssetsPath, "Songs/Demo 1/song.ogg")}");
 
-        var lastTick = Song.ConvertSecondToTicks(_audioSource.clip.length, _song.Resolution, _song.sortedBPM);
+        var lastTick = Utilities.ConvertSecondsToTicks(_audioSource.clip.length, _song.Resolution, _song.SortedBPM);
 
-        _song.BPM.TryAdd(Song.RoundUpToTheNearestMultiplier(lastTick, _song.Resolution), _song.BPM.Last().Value);
+        _song.BPM.TryAdd(Utilities.RoundUpToTheNearestMultiplier(lastTick, _song.Resolution), _song.BPM.Last().Value);
 
         _notesGroupedByHandPosition = _song.Difficulties[Difficulty.Expert]
+            .Where(note => note.HandPosition < 5)
             .GroupBy(note => note.HandPosition)
             .ToDictionary(group => group.Key, group => group.ToList());
 
         _audioSource.Play();
     }
 
+    public static async UniTask<string> LoadTextFileFromPath(string path)
+    {
+        using var request = UnityWebRequest.Get(path);
+
+        request.downloadHandler = new DownloadHandlerBuffer();
+
+        await request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            return request.downloadHandler.text;
+        }
+
+        throw new FileNotFoundException(request.result.ToString());
+    }
+
+    public static async UniTask<AudioClip> LoadAudioFileFromPath(string path, AudioType audioType = AudioType.OGGVORBIS)
+    {
+        using var request =
+            UnityWebRequestMultimedia.GetAudioClip(path, audioType);
+
+        await request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            return DownloadHandlerAudioClip.GetContent(request);
+        }
+
+        throw new FileNotFoundException(request.result.ToString());
+    }
+
     private void Update()
     {
-        if (_song == null)
+        if (_song == null || _notesGroupedByHandPosition == null)
         {
             return;
         }
 
-        var tickOffset = Song.ConvertSecondToTicks(_audioSource.time, _song.Resolution, _song.sortedBPM);
+        var tickOffset = Utilities.ConvertSecondsToTicks(_audioSource.time, _song.Resolution, _song.SortedBPM);
 
-        for (var x = 0; x < 5; x += 1)
+        for (var x = 0; x < _notesGroupedByHandPosition.Count; x += 1)
         {
             if (!_notesGroupedByHandPosition.ContainsKey(x))
             {
                 continue;
             }
 
-            var noteMatrix = new List<Matrix4x4>();
+            var noteMatrix = new List<Matrix4x4>
+            {
+                Matrix4x4.TRS(new Vector3(x + 0.5f, 0, 0), Quaternion.identity, _noteScaleFlat)
+            };
 
             foreach (var note in _notesGroupedByHandPosition[x])
             {
-                var position = Song.ConvertTickToPosition(note.Position - tickOffset, _song.Resolution) * _scale;
+                var position = Utilities.ConvertTickToPosition(note.Position - tickOffset, _song.Resolution) * _scale;
 
                 if (position > _distance)
                 {
@@ -82,7 +124,7 @@ public class RenderSong : MonoBehaviour
                     continue;
                 }
 
-                noteMatrix.Add(Matrix4x4.TRS(new Vector3(note.HandPosition, 0, position),
+                noteMatrix.Add(Matrix4x4.TRS(new Vector3(note.HandPosition + 0.5f, 0, position),
                     Quaternion.identity, _noteScale));
             }
 
@@ -91,9 +133,9 @@ public class RenderSong : MonoBehaviour
 
         var beatBarMatrix = new List<Matrix4x4>();
 
-        foreach (var beatBar in _song.beatBars)
+        foreach (var beatBar in _song.BeatBars)
         {
-            var position = Song.ConvertTickToPosition(beatBar.Position - tickOffset, _song.Resolution) * _scale;
+            var position = Utilities.ConvertTickToPosition(beatBar.Position - tickOffset, _song.Resolution) * _scale;
 
             if (position > _distance)
             {

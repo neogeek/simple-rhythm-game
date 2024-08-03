@@ -1,5 +1,21 @@
 {
   "dependencies": {
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "c61a7d9961114ac2c4c28c81e4a66ae7387280e3"
+    },
+    "com.scottdoxey.rhythm-game-utilities": {
+      "version": "https://github.com/neogeek/rhythm-game-utilities.git?path=/UnityPackage",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      },
+      "hash": "db8efc7626f4a60d274b1e0349fcfc838f793e09"
+    },
     "com.unity.burst": {
       "version": "1.8.15",
       "depth": 1,
